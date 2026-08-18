@@ -8,8 +8,8 @@
 <style>
   :root{
     --bg:#0E0F0C; --panel:#17190F; --panel-2:#1F2216; --line:#2B2F1E;
-    --ink:#F2F0E4; --ink-dim:#A7A98F; --lime:#C7F02A; --lime-dim:#7C8E1E;
-    --tpa:#4FA0FF; --devedor:#E8A33D; --danger:#FF5A4E; --radius:14px;
+    --ink:#F2F0E4; --ink-dim:#A7A98F; --gold:#E5B94B; --gold-dim:#A9822A;
+    --tpa:#4FA0FF; --devedor:#FF7A45; --danger:#FF5A4E; --radius:14px;
     --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
     --sans:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
@@ -18,7 +18,7 @@
   body{min-height:100vh; display:flex; flex-direction:column;}
   .app{max-width:480px; margin:0 auto; width:100%; flex:1; padding:0 16px 90px;}
   header.top{padding:20px 16px 12px; display:flex; align-items:baseline; justify-content:space-between; max-width:480px; margin:0 auto; width:100%;}
-  header.top .brand{font-family:var(--mono); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--lime);}
+  header.top .brand{font-family:var(--mono); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold);}
   header.top .sub{font-size:12px; color:var(--ink-dim);}
 
   .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:14px;}
@@ -28,10 +28,10 @@
     color:var(--ink); font-family:var(--mono); font-size:18px; padding:13px 14px; margin-bottom:10px; outline:none;
   }
   input::placeholder{color:#5A5C48;}
-  input:focus, select:focus{border-color:var(--lime);}
+  input:focus, select:focus{border-color:var(--gold);}
   button{font-family:var(--sans); font-weight:600; border:none; border-radius:10px; cursor:pointer; font-size:15px;}
-  .btn-primary{width:100%; background:var(--lime); color:#10130A; padding:15px; font-size:15px;}
-  .btn-primary:active{background:var(--lime-dim);}
+  .btn-primary{width:100%; background:var(--gold); color:#10130A; padding:15px; font-size:15px;}
+  .btn-primary:active{background:var(--gold-dim);}
   .btn-ghost{width:100%; background:transparent; color:var(--ink-dim); border:1px solid var(--line); padding:11px; margin-top:8px;}
   .btn-danger{background:var(--danger); color:#1A0806;}
   .btn-sm{padding:8px 12px; font-size:13px;}
@@ -43,13 +43,13 @@
   .split .box{flex:1; background:var(--panel-2); border-radius:10px; padding:10px 6px; text-align:center;}
   .split .box .n{font-family:var(--mono); font-size:17px;}
   .split .box .l{font-size:9px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.06em; margin-top:3px;}
-  .split .box.tpa .n{color:var(--tpa);} .split .box.cash .n{color:var(--lime);} .split .box.devedor .n{color:var(--devedor);}
+  .split .box.tpa .n{color:var(--tpa);} .split .box.cash .n{color:var(--gold);} .split .box.devedor .n{color:var(--devedor);}
 
   .prod-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;}
   .prod-btn{background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:12px 8px; text-align:left; color:var(--ink);}
   .prod-btn .pn{font-size:13px; font-weight:600; display:block;}
   .prod-btn .pp{font-family:var(--mono); font-size:12px; color:var(--ink-dim);}
-  .prod-btn.sel{border-color:var(--lime); background:rgba(199,240,42,.08);}
+  .prod-btn.sel{border-color:var(--gold); background:rgba(199,240,42,.08);}
 
   .qty-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
   .qty-row button{width:44px; height:44px; background:var(--panel-2); color:var(--ink); font-size:20px; border:1px solid var(--line);}
@@ -57,14 +57,14 @@
 
   .method-toggle{display:flex; gap:6px; margin-bottom:12px;}
   .method-toggle button{flex:1; padding:12px 4px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink-dim); font-size:13px;}
-  .method-toggle button.active.dinheiro{background:var(--lime); color:#10130A; border-color:var(--lime);}
+  .method-toggle button.active.dinheiro{background:var(--gold); color:#10130A; border-color:var(--gold);}
   .method-toggle button.active.tpa{background:var(--tpa); color:#04101E; border-color:var(--tpa);}
   .method-toggle button.active.devedor{background:var(--devedor); color:#2A1904; border-color:var(--devedor);}
 
   .list{display:flex; flex-direction:column; gap:8px;}
   .row{display:flex; align-items:center; justify-content:space-between; padding:11px 13px; background:var(--panel-2); border-radius:10px;}
   .row .tag{font-size:9px; padding:3px 6px; border-radius:5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700;}
-  .tag.dinheiro{background:rgba(199,240,42,.15); color:var(--lime);}
+  .tag.dinheiro{background:rgba(199,240,42,.15); color:var(--gold);}
   .tag.tpa{background:rgba(79,160,255,.15); color:var(--tpa);}
   .tag.devedor{background:rgba(232,163,61,.18); color:var(--devedor);}
   .row .meta{display:flex; flex-direction:column; gap:2px;}
@@ -76,11 +76,11 @@
   .tabs{position:fixed; bottom:0; left:0; right:0; background:var(--panel); border-top:1px solid var(--line); display:flex; z-index:10;}
   .tabs button{flex:1; background:none; padding:12px 4px 10px; color:var(--ink-dim); font-size:11px; border-radius:0; display:flex; flex-direction:column; align-items:center; gap:3px;}
   .tabs button .ic{font-size:17px;}
-  .tabs button.active{color:var(--lime);}
+  .tabs button.active{color:var(--gold);}
 
-  .diff{font-weight:700;} .diff.zero{color:var(--lime);} .diff.off{color:var(--danger);}
+  .diff{font-weight:700;} .diff.zero{color:var(--gold);} .diff.off{color:var(--danger);}
   .hint{font-size:12px; color:var(--ink-dim); line-height:1.5; margin-top:8px;}
-  code{color:var(--lime);}
+  code{color:var(--gold);}
 
   .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:flex-end; z-index:30;}
   .modal{background:var(--panel); border-radius:20px 20px 0 0; padding:20px 18px 26px; width:100%; max-width:480px; margin:0 auto; max-height:85vh; overflow-y:auto;}
@@ -123,7 +123,7 @@ const dateLabel = document.getElementById("dateLabel");
 const today = new Date().toISOString().slice(0,10);
 dateLabel.textContent = new Date().toLocaleDateString("pt-PT", { day:"2-digit", month:"long", year:"numeric" });
 
-let state = { tab:"hoje", session:null, vendas:[], produtos:[], devedores:[], selProduto:null, qtd:1, metodo:"dinheiro", selDevedor:null };
+let state = { tab:"hoje", session:null, vendas:[], produtos:[], devedores:[], cart:[], metodo:"dinheiro", selDevedor:null };
 
 function eur(n){ return (Number(n)||0).toLocaleString("pt-PT",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
 
@@ -192,14 +192,19 @@ async function renderHoje(){
     </div>
 
     <div class="card">
-      <div class="label">Registar venda</div>
+      <div class="label">Adicionar ao carrinho</div>
       <div class="prod-grid" id="prodGrid"></div>
-      <input type="text" id="prodManual" placeholder="Ou escreve um item avulso">
-      <div class="qty-row">
-        <button id="qMinus">−</button><div class="qn" id="qtdShow">${state.qtd}</div><button id="qPlus">+</button>
-        <input type="number" inputmode="decimal" id="valorManual" placeholder="Valor total (€)" style="flex:1.4; margin:0;">
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="prodManual" placeholder="Item avulso" style="flex:1.6;">
+        <input type="number" inputmode="decimal" id="valorManual" placeholder="Valor (€)" style="flex:1;">
       </div>
-      <div class="method-toggle">
+      <button class="btn-ghost" id="addManualBtn" style="margin-top:0;">+ Adicionar item avulso</button>
+    </div>
+
+    <div class="card">
+      <div class="label">Carrinho${state.cart.length ? ' — '+state.cart.length+' item(ns)' : ''}</div>
+      <div id="carrinhoArea"></div>
+      <div class="method-toggle" style="margin-top:12px;">
         <button class="dinheiro ${state.metodo==='dinheiro'?'active':''}" data-m="dinheiro">Dinheiro</button>
         <button class="tpa ${state.metodo==='tpa'?'active':''}" data-m="tpa">TPA</button>
         <button class="devedor ${state.metodo==='devedor'?'active':''}" data-m="devedor">Devedores</button>
@@ -215,21 +220,28 @@ async function renderHoje(){
   `;
 
   const grid = document.getElementById("prodGrid");
-  grid.innerHTML = state.produtos.map(p => `
-    <button class="prod-btn ${state.selProduto && state.selProduto.id===p.id ? 'sel':''}" data-id="${p.id}">
-      <span class="pn">${p.nome}</span><span class="pp">${eur(p.preco)}</span>
-    </button>`).join("");
+  grid.innerHTML = state.produtos.map(p => {
+    const noCarrinho = state.cart.find(c=>c.produto_id===p.id);
+    return `
+    <button class="prod-btn ${noCarrinho ? 'sel':''}" data-id="${p.id}">
+      <span class="pn">${p.nome}${noCarrinho ? ' ×'+noCarrinho.quantidade : ''}</span><span class="pp">${eur(p.preco)}</span>
+    </button>`;
+  }).join("");
   grid.querySelectorAll(".prod-btn").forEach(btn=>{
     btn.onclick = () => {
       const p = state.produtos.find(x=>x.id===btn.dataset.id);
-      state.selProduto = (state.selProduto && state.selProduto.id===p.id) ? null : p;
-      document.getElementById("prodManual").value = "";
-      renderHoje();
+      addAoCarrinho({ produto_id:p.id, produto_nome:p.nome, valor_unitario:Number(p.preco), quantidade:1, valor_total:Number(p.preco) });
     };
   });
 
-  document.getElementById("qMinus").onclick = () => { state.qtd = Math.max(1, state.qtd-1); document.getElementById("qtdShow").textContent = state.qtd; };
-  document.getElementById("qPlus").onclick = () => { state.qtd += 1; document.getElementById("qtdShow").textContent = state.qtd; };
+  document.getElementById("addManualBtn").onclick = () => {
+    const nome = document.getElementById("prodManual").value.trim();
+    const valor = parseFloat(document.getElementById("valorManual").value);
+    if(!nome || isNaN(valor) || valor<=0) return;
+    addAoCarrinho({ produto_id:null, produto_nome:nome, valor_unitario:valor, quantidade:1, valor_total:valor });
+    document.getElementById("prodManual").value = "";
+    document.getElementById("valorManual").value = "";
+  };
 
   document.querySelectorAll(".method-toggle button").forEach(b=>{
     b.onclick = () => { state.metodo = b.dataset.m; renderHoje(); };
@@ -245,9 +257,41 @@ async function renderHoje(){
     document.getElementById("devedorSelect").onchange = (e)=>{ state.selDevedor = e.target.value; };
   }
 
+  renderCarrinho();
   document.getElementById("registarBtn").onclick = registarVenda;
   document.getElementById("fecharBtn").onclick = renderFecharModal;
   renderListaHoje();
+}
+
+function addAoCarrinho(item){
+  if(item.produto_id){
+    const existente = state.cart.find(c=>c.produto_id===item.produto_id);
+    if(existente){ existente.quantidade += 1; existente.valor_total = existente.valor_unitario * existente.quantidade; renderHoje(); return; }
+  }
+  state.cart.push(item);
+  renderHoje();
+}
+
+function renderCarrinho(){
+  const el = document.getElementById("carrinhoArea");
+  if(!state.cart.length){ el.innerHTML = `<div class="empty">Carrinho vazio — toca num produto acima.</div>`; return; }
+  const total = state.cart.reduce((s,c)=>s+c.valor_total,0);
+  el.innerHTML = state.cart.map((c,i) => `
+    <div class="row" style="margin-bottom:6px;">
+      <div class="meta">
+        <span class="prodname">${c.produto_nome}</span>
+        <span class="who">${eur(c.valor_unitario)} ${c.quantidade>1 ? '× '+c.quantidade : ''}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="val">${eur(c.valor_total)}</div>
+        <button data-rm="${i}" style="background:none; color:var(--danger); font-size:18px; padding:2px 6px;">✕</button>
+      </div>
+    </div>`).join("") + `<div class="row" style="background:none; border-top:1px solid var(--line); border-radius:0; margin-top:4px; padding-top:12px;">
+      <div class="prodname">Total do carrinho</div><div class="val" style="font-size:17px;">${eur(total)}</div>
+    </div>`;
+  el.querySelectorAll("[data-rm]").forEach(b=>{
+    b.onclick = () => { state.cart.splice(Number(b.dataset.rm),1); renderHoje(); };
+  });
 }
 
 async function loadDevedoresLeve(){
@@ -269,38 +313,27 @@ function renderListaHoje(){
 }
 
 async function registarVenda(){
-  const manualNome = document.getElementById("prodManual").value.trim();
-  const manualValor = parseFloat(document.getElementById("valorManual").value);
-  let produto_id = null, produto_nome, valor_unitario, valor_total, quantidade = state.qtd;
-
-  if(state.selProduto){
-    produto_id = state.selProduto.id;
-    produto_nome = state.selProduto.nome;
-    valor_unitario = Number(state.selProduto.preco);
-    valor_total = !isNaN(manualValor) ? manualValor : valor_unitario * quantidade;
-  } else if(manualNome){
-    produto_nome = manualNome;
-    valor_total = !isNaN(manualValor) ? manualValor : NaN;
-    valor_unitario = quantidade ? valor_total/quantidade : valor_total;
-  } else { return; }
-
-  if(isNaN(valor_total) || valor_total <= 0) return;
+  if(!state.cart.length) return;
   if(state.metodo === "devedor" && !state.selDevedor) return;
 
-  const { error } = await sb.from("bar_vendas").insert({
-    session_id: state.session.id, data: today, produto_id, produto_nome,
-    quantidade, valor_unitario, valor_total, metodo: state.metodo,
+  const linhas = state.cart.map(c => ({
+    session_id: state.session.id, data: today, produto_id: c.produto_id, produto_nome: c.produto_nome,
+    quantidade: c.quantidade, valor_unitario: c.valor_unitario, valor_total: c.valor_total, metodo: state.metodo,
     devedor_id: state.metodo === "devedor" ? state.selDevedor : null
-  });
+  }));
+
+  const { error } = await sb.from("bar_vendas").insert(linhas);
 
   if(!error && state.metodo === "devedor"){
+    const totalCarrinho = state.cart.reduce((s,c)=>s+c.valor_total,0);
+    const descricao = state.cart.map(c => c.produto_nome + (c.quantidade>1 ? ' ×'+c.quantidade : '')).join(", ");
     const { data: devAtual } = await sb.from("bar_devedores").select("saldo").eq("id", state.selDevedor).single();
-    await sb.from("bar_devedor_movimentos").insert({ devedor_id: state.selDevedor, tipo:"divida", valor: valor_total, nota: produto_nome });
-    await sb.from("bar_devedores").update({ saldo: Number(devAtual.saldo) + valor_total }).eq("id", state.selDevedor);
+    await sb.from("bar_devedor_movimentos").insert({ devedor_id: state.selDevedor, tipo:"divida", valor: totalCarrinho, nota: descricao });
+    await sb.from("bar_devedores").update({ saldo: Number(devAtual.saldo) + totalCarrinho }).eq("id", state.selDevedor);
   }
 
   if(!error){
-    state.selProduto = null; state.qtd = 1; state.selDevedor = null;
+    state.cart = []; state.selDevedor = null;
     await renderHoje();
   }
 }
@@ -437,7 +470,7 @@ async function toggleDetalheDevedor(devedorId){
           <span class="prodname">${m.tipo === 'divida' ? (m.nota || 'Item') : 'Pagamento'}</span>
           <span class="who">${new Date(m.criado_em).toLocaleDateString('pt-PT')}</span>
         </div>
-        <div class="val" style="color:${m.tipo==='divida' ? 'var(--devedor)' : 'var(--lime)'}">
+        <div class="val" style="color:${m.tipo==='divida' ? 'var(--devedor)' : 'var(--gold)'}">
           ${m.tipo==='divida' ? '+' : '−'} ${eur(m.valor)}
         </div>
       </div>`).join("") + `</div>`;
