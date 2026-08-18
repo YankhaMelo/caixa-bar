@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>5.7 Bar — Caixa</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#0E0F0C; --panel:#17190F; --panel-2:#1F2216; --line:#2B2F1E;
+    --ink:#F2F0E4; --ink-dim:#A7A98F; --lime:#C7F02A; --lime-dim:#7C8E1E;
+    --tpa:#4FA0FF; --devedor:#E8A33D; --danger:#FF5A4E; --radius:14px;
+    --mono:'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --sans:-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans); overscroll-behavior:none;}
+  body{min-height:100vh; display:flex; flex-direction:column;}
+  .app{max-width:480px; margin:0 auto; width:100%; flex:1; padding:0 16px 90px;}
+  header.top{padding:20px 16px 12px; display:flex; align-items:baseline; justify-content:space-between; max-width:480px; margin:0 auto; width:100%;}
+  header.top .brand{font-family:var(--mono); font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--lime);}
+  header.top .sub{font-size:12px; color:var(--ink-dim);}
+
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:14px;}
+  .label{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:8px; display:block;}
+  input[type=text], input[type=number], input[type=tel], select, input[type=month]{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
+    color:var(--ink); font-family:var(--mono); font-size:18px; padding:13px 14px; margin-bottom:10px; outline:none;
+  }
+  input::placeholder{color:#5A5C48;}
+  input:focus, select:focus{border-color:var(--lime);}
+  button{font-family:var(--sans); font-weight:600; border:none; border-radius:10px; cursor:pointer; font-size:15px;}
+  .btn-primary{width:100%; background:var(--lime); color:#10130A; padding:15px; font-size:15px;}
+  .btn-primary:active{background:var(--lime-dim);}
+  .btn-ghost{width:100%; background:transparent; color:var(--ink-dim); border:1px solid var(--line); padding:11px; margin-top:8px;}
+  .btn-danger{background:var(--danger); color:#1A0806;}
+  .btn-sm{padding:8px 12px; font-size:13px;}
+
+  .hero-total{text-align:center; padding:14px 0 4px;}
+  .hero-total .n{font-family:var(--mono); font-size:40px; font-weight:700; line-height:1;}
+  .hero-total .l{font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.1em; margin-top:6px;}
+  .split{display:flex; gap:8px; margin-top:14px;}
+  .split .box{flex:1; background:var(--panel-2); border-radius:10px; padding:10px 6px; text-align:center;}
+  .split .box .n{font-family:var(--mono); font-size:17px;}
+  .split .box .l{font-size:9px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.06em; margin-top:3px;}
+  .split .box.tpa .n{color:var(--tpa);} .split .box.cash .n{color:var(--lime);} .split .box.devedor .n{color:var(--devedor);}
+
+  .prod-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px;}
+  .prod-btn{background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:12px 8px; text-align:left; color:var(--ink);}
+  .prod-btn .pn{font-size:13px; font-weight:600; display:block;}
+  .prod-btn .pp{font-family:var(--mono); font-size:12px; color:var(--ink-dim);}
+  .prod-btn.sel{border-color:var(--lime); background:rgba(199,240,42,.08);}
+
+  .qty-row{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .qty-row button{width:44px; height:44px; background:var(--panel-2); color:var(--ink); font-size:20px; border:1px solid var(--line);}
+  .qty-row .qn{flex:1; text-align:center; font-family:var(--mono); font-size:20px;}
+
+  .method-toggle{display:flex; gap:6px; margin-bottom:12px;}
+  .method-toggle button{flex:1; padding:12px 4px; background:var(--panel-2); border:1px solid var(--line); color:var(--ink-dim); font-size:13px;}
+  .method-toggle button.active.dinheiro{background:var(--lime); color:#10130A; border-color:var(--lime);}
+  .method-toggle button.active.tpa{background:var(--tpa); color:#04101E; border-color:var(--tpa);}
+  .method-toggle button.active.devedor{background:var(--devedor); color:#2A1904; border-color:var(--devedor);}
+
+  .list{display:flex; flex-direction:column; gap:8px;}
+  .row{display:flex; align-items:center; justify-content:space-between; padding:11px 13px; background:var(--panel-2); border-radius:10px;}
+  .row .tag{font-size:9px; padding:3px 6px; border-radius:5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700;}
+  .tag.dinheiro{background:rgba(199,240,42,.15); color:var(--lime);}
+  .tag.tpa{background:rgba(79,160,255,.15); color:var(--tpa);}
+  .tag.devedor{background:rgba(232,163,61,.18); color:var(--devedor);}
+  .row .meta{display:flex; flex-direction:column; gap:2px;}
+  .row .prodname{font-size:13px; font-weight:600;}
+  .row .who{font-size:11px; color:var(--ink-dim);}
+  .row .val{font-family:var(--mono); font-weight:700;}
+  .empty{text-align:center; color:var(--ink-dim); font-size:13px; padding:26px 10px;}
+
+  .tabs{position:fixed; bottom:0; left:0; right:0; background:var(--panel); border-top:1px solid var(--line); display:flex; z-index:10;}
+  .tabs button{flex:1; background:none; padding:12px 4px 10px; color:var(--ink-dim); font-size:11px; border-radius:0; display:flex; flex-direction:column; align-items:center; gap:3px;}
+  .tabs button .ic{font-size:17px;}
+  .tabs button.active{color:var(--lime);}
+
+  .diff{font-weight:700;} .diff.zero{color:var(--lime);} .diff.off{color:var(--danger);}
+  .hint{font-size:12px; color:var(--ink-dim); line-height:1.5; margin-top:8px;}
+  code{color:var(--lime);}
+
+  .modal-bg{position:fixed; inset:0; background:rgba(0,0,0,.6); display:flex; align-items:flex-end; z-index:30;}
+  .modal{background:var(--panel); border-radius:20px 20px 0 0; padding:20px 18px 26px; width:100%; max-width:480px; margin:0 auto; max-height:85vh; overflow-y:auto;}
+
+  table.report{width:100%; border-collapse:collapse; font-size:13px;}
+  table.report th{text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-dim); padding:6px 4px; border-bottom:1px solid var(--line);}
+  table.report td{padding:8px 4px; border-bottom:1px solid var(--line); font-family:var(--mono);}
+  table.report td:first-child, table.report th:first-child{font-family:var(--sans);}
+
+  .devedor-item{padding:13px; background:var(--panel-2); border-radius:10px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;}
+  .devedor-item .nome{font-weight:600; font-size:14px;}
+  .devedor-item .saldo{font-family:var(--mono); font-weight:700; color:var(--devedor);}
+  .devedor-item .saldo.zero{color:var(--ink-dim);}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div><div class="brand">5.7 BAR</div><div class="sub" id="dateLabel"></div></div>
+</header>
+
+<div class="app" id="app"></div>
+
+<div class="tabs" id="tabs">
+  <button data-tab="hoje"><span class="ic">●</span>Hoje</button>
+  <button data-tab="produtos"><span class="ic">▤</span>Produtos</button>
+  <button data-tab="devedores"><span class="ic">◐</span>Devedores</button>
+  <button data-tab="relatorios"><span class="ic">▦</span>Relatórios</button>
+</div>
+
+<script>
+/* ======================= CONFIGURA AQUI ======================= */
+const SUPABASE_URL = "https://gseqpjbpcvqbobugafxx.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_5asvkf5DfTpNwD7-Gyjypg_M5jiGqGc";
+/* ================================================================ */
+
+const sb = (SUPABASE_URL.startsWith("http")) ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+const app = document.getElementById("app");
+const dateLabel = document.getElementById("dateLabel");
+const today = new Date().toISOString().slice(0,10);
+dateLabel.textContent = new Date().toLocaleDateString("pt-PT", { day:"2-digit", month:"long", year:"numeric" });
+
+let state = { tab:"hoje", session:null, vendas:[], produtos:[], devedores:[], selProduto:null, qtd:1, metodo:"dinheiro", selDevedor:null };
+
+function eur(n){ return (Number(n)||0).toLocaleString("pt-PT",{minimumFractionDigits:2,maximumFractionDigits:2}) + " €"; }
+
+document.querySelectorAll("#tabs button").forEach(b=>{
+  b.onclick = async () => { state.tab = b.dataset.tab; await renderTab(); };
+});
+
+async function init(){
+  if(!sb){
+    app.innerHTML = `<div class="card"><div class="label">Configuração necessária</div>
+      <p>Substitui <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code> no topo do ficheiro
+      pelos dados do teu projeto Supabase, e corre o script SQL fornecido em separado.</p></div>`;
+    return;
+  }
+  await loadProdutos();
+  await renderTab();
+}
+
+async function renderTab(){
+  document.querySelectorAll("#tabs button").forEach(b=> b.classList.toggle("active", b.dataset.tab === state.tab));
+  if(state.tab === "hoje") await renderHoje();
+  else if(state.tab === "produtos") await renderProdutos();
+  else if(state.tab === "devedores") await renderDevedores();
+  else if(state.tab === "relatorios") await renderRelatorios();
+}
+
+/* ============================= HOJE ============================= */
+async function loadOpenSession(){
+  const { data } = await sb.from("bar_sessions").select("*").eq("data", today).eq("status","aberta").maybeSingle();
+  state.session = data || null;
+  if(state.session) await loadVendasHoje();
+}
+async function loadVendasHoje(){
+  const { data } = await sb.from("bar_vendas").select("*").eq("session_id", state.session.id).order("criado_em",{ascending:false});
+  state.vendas = data || [];
+}
+async function loadProdutos(){
+  const { data } = await sb.from("bar_produtos").select("*").eq("ativo", true).order("nome");
+  state.produtos = data || [];
+}
+
+function totaisHoje(){
+  let dinheiro=0, tpa=0, fiado=0;
+  state.vendas.forEach(v=>{
+    if(v.metodo==="dinheiro") dinheiro += Number(v.valor_total);
+    else if(v.metodo==="tpa") tpa += Number(v.valor_total);
+    else if(v.metodo==="devedor") fiado += Number(v.valor_total);
+  });
+  return { dinheiro, tpa, fiado, total: dinheiro+tpa+fiado };
+}
+
+async function renderHoje(){
+  await loadOpenSession();
+  if(!state.session){ renderAbrirCaixa(); return; }
+  const t = totaisHoje();
+  app.innerHTML = `
+    <div class="card">
+      <div class="hero-total">
+        <div class="n">${eur(t.total)}</div><div class="l">Vendas de hoje</div>
+        <div class="split">
+          <div class="box cash"><div class="n">${eur(t.dinheiro)}</div><div class="l">Dinheiro</div></div>
+          <div class="box tpa"><div class="n">${eur(t.tpa)}</div><div class="l">TPA</div></div>
+          <div class="box devedor"><div class="n">${eur(t.fiado)}</div><div class="l">Devedores</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">Registar venda</div>
+      <div class="prod-grid" id="prodGrid"></div>
+      <input type="text" id="prodManual" placeholder="Ou escreve um item avulso">
+      <div class="qty-row">
+        <button id="qMinus">−</button><div class="qn" id="qtdShow">${state.qtd}</div><button id="qPlus">+</button>
+        <input type="number" inputmode="decimal" id="valorManual" placeholder="Valor total (€)" style="flex:1.4; margin:0;">
+      </div>
+      <div class="method-toggle">
+        <button class="dinheiro ${state.metodo==='dinheiro'?'active':''}" data-m="dinheiro">Dinheiro</button>
+        <button class="tpa ${state.metodo==='tpa'?'active':''}" data-m="tpa">TPA</button>
+        <button class="devedor ${state.metodo==='devedor'?'active':''}" data-m="devedor">Devedores</button>
+      </div>
+      <div id="devedorPicker"></div>
+      <button class="btn-primary" id="registarBtn">+ Registar venda</button>
+    </div>
+
+    <div class="label">Vendas de hoje</div>
+    <div id="listaHoje"></div>
+
+    <button class="btn-ghost btn-danger" id="fecharBtn" style="margin-top:8px;">Fechar caixa do dia</button>
+  `;
+
+  const grid = document.getElementById("prodGrid");
+  grid.innerHTML = state.produtos.map(p => `
+    <button class="prod-btn ${state.selProduto && state.selProduto.id===p.id ? 'sel':''}" data-id="${p.id}">
+      <span class="pn">${p.nome}</span><span class="pp">${eur(p.preco)}</span>
+    </button>`).join("");
+  grid.querySelectorAll(".prod-btn").forEach(btn=>{
+    btn.onclick = () => {
+      const p = state.produtos.find(x=>x.id===btn.dataset.id);
+      state.selProduto = (state.selProduto && state.selProduto.id===p.id) ? null : p;
+      document.getElementById("prodManual").value = "";
+      renderHoje();
+    };
+  });
+
+  document.getElementById("qMinus").onclick = () => { state.qtd = Math.max(1, state.qtd-1); document.getElementById("qtdShow").textContent = state.qtd; };
+  document.getElementById("qPlus").onclick = () => { state.qtd += 1; document.getElementById("qtdShow").textContent = state.qtd; };
+
+  document.querySelectorAll(".method-toggle button").forEach(b=>{
+    b.onclick = () => { state.metodo = b.dataset.m; renderHoje(); };
+  });
+
+  if(state.metodo === "devedor"){
+    await loadDevedoresLeve();
+    document.getElementById("devedorPicker").innerHTML = `
+      <select id="devedorSelect">
+        <option value="">Escolhe o devedor…</option>
+        ${state.devedores.map(d=>`<option value="${d.id}" ${state.selDevedor===d.id?'selected':''}>${d.nome}</option>`).join("")}
+      </select>`;
+    document.getElementById("devedorSelect").onchange = (e)=>{ state.selDevedor = e.target.value; };
+  }
+
+  document.getElementById("registarBtn").onclick = registarVenda;
+  document.getElementById("fecharBtn").onclick = renderFecharModal;
+  renderListaHoje();
+}
+
+async function loadDevedoresLeve(){
+  const { data } = await sb.from("bar_devedores").select("id,nome").order("nome");
+  state.devedores = data || [];
+}
+
+function renderListaHoje(){
+  const el = document.getElementById("listaHoje");
+  if(!state.vendas.length){ el.innerHTML = `<div class="empty">Ainda sem vendas registadas hoje.</div>`; return; }
+  el.innerHTML = `<div class="list">` + state.vendas.map(v => `
+    <div class="row">
+      <div class="meta">
+        <span class="prodname">${v.produto_nome}${v.quantidade && v.quantidade>1 ? ' ×'+v.quantidade : ''}</span>
+        <span class="who"><span class="tag ${v.metodo}">${v.metodo}</span>${v.nota ? ' · '+v.nota : ''}</span>
+      </div>
+      <div class="val">${eur(v.valor_total)}</div>
+    </div>`).join("") + `</div>`;
+}
+
+async function registarVenda(){
+  const manualNome = document.getElementById("prodManual").value.trim();
+  const manualValor = parseFloat(document.getElementById("valorManual").value);
+  let produto_id = null, produto_nome, valor_unitario, valor_total, quantidade = state.qtd;
+
+  if(state.selProduto){
+    produto_id = state.selProduto.id;
+    produto_nome = state.selProduto.nome;
+    valor_unitario = Number(state.selProduto.preco);
+    valor_total = !isNaN(manualValor) ? manualValor : valor_unitario * quantidade;
+  } else if(manualNome){
+    produto_nome = manualNome;
+    valor_total = !isNaN(manualValor) ? manualValor : NaN;
+    valor_unitario = quantidade ? valor_total/quantidade : valor_total;
+  } else { return; }
+
+  if(isNaN(valor_total) || valor_total <= 0) return;
+  if(state.metodo === "devedor" && !state.selDevedor) return;
+
+  const { error } = await sb.from("bar_vendas").insert({
+    session_id: state.session.id, data: today, produto_id, produto_nome,
+    quantidade, valor_unitario, valor_total, metodo: state.metodo,
+    devedor_id: state.metodo === "devedor" ? state.selDevedor : null
+  });
+
+  if(!error && state.metodo === "devedor"){
+    const { data: devAtual } = await sb.from("bar_devedores").select("saldo").eq("id", state.selDevedor).single();
+    await sb.from("bar_devedor_movimentos").insert({ devedor_id: state.selDevedor, tipo:"divida", valor: valor_total, nota: produto_nome });
+    await sb.from("bar_devedores").update({ saldo: Number(devAtual.saldo) + valor_total }).eq("id", state.selDevedor);
+  }
+
+  if(!error){
+    state.selProduto = null; state.qtd = 1; state.selDevedor = null;
+    await renderHoje();
+  }
+}
+
+/* --------------------------- ABRIR / FECHAR --------------------------- */
+function renderAbrirCaixa(){
+  app.innerHTML = `
+    <div class="card">
+      <div class="label">Abrir caixa do bar — hoje</div>
+      <input type="number" inputmode="decimal" id="valorAbertura" placeholder="Valor de abertura (€)">
+      <button class="btn-primary" id="abrirBtn">Abrir caixa</button>
+    </div>`;
+  document.getElementById("abrirBtn").onclick = async () => {
+    const v = parseFloat(document.getElementById("valorAbertura").value);
+    if(isNaN(v)) return;
+    const { data, error } = await sb.from("bar_sessions").insert({ data: today, valor_abertura: v, status:"aberta" }).select().single();
+    if(!error){ state.session = data; state.vendas = []; renderHoje(); }
+  };
+}
+
+function renderFecharModal(){
+  const t = totaisHoje();
+  const esperado = Number(state.session.valor_abertura) + t.dinheiro;
+  const bg = document.createElement("div");
+  bg.className = "modal-bg";
+  bg.innerHTML = `
+    <div class="modal">
+      <div class="label">Fechar caixa do bar — hoje</div>
+      <p class="hint">Abertura: ${eur(state.session.valor_abertura)} · Dinheiro em vendas: ${eur(t.dinheiro)} · TPA: ${eur(t.tpa)} · Devedores: ${eur(t.fiado)}</p>
+      <p class="hint">Fecho esperado em dinheiro: <b>${eur(esperado)}</b></p>
+      <div class="label" style="margin-top:12px;">Dinheiro contado na gaveta (€)</div>
+      <input type="number" inputmode="decimal" id="valorContado" placeholder="0,00">
+      <button class="btn-primary" id="confirmarFecho">Confirmar fecho</button>
+      <button class="btn-ghost" id="cancelarFecho">Cancelar</button>
+    </div>`;
+  document.body.appendChild(bg);
+  document.getElementById("cancelarFecho").onclick = () => bg.remove();
+  document.getElementById("confirmarFecho").onclick = async () => {
+    const contado = parseFloat(document.getElementById("valorContado").value);
+    if(isNaN(contado)) return;
+    const diferenca = contado - esperado;
+    const { error } = await sb.from("bar_sessions").update({
+      status:"fechada", valor_contado: contado, fecho_esperado: esperado, diferenca, fechado_em: new Date().toISOString()
+    }).eq("id", state.session.id);
+    if(!error){ bg.remove(); state.session = null; state.vendas = []; renderHoje(); }
+  };
+}
+
+/* ============================ PRODUTOS ============================ */
+async function renderProdutos(){
+  await loadProdutos();
+  app.innerHTML = `
+    <div class="card">
+      <div class="label">Novo produto</div>
+      <input type="text" id="novoNome" placeholder="Nome (ex: Água 0,5L)">
+      <input type="number" inputmode="decimal" id="novoPreco" placeholder="Preço (€)">
+      <button class="btn-primary" id="addProdutoBtn">Adicionar produto</button>
+    </div>
+    <div class="label">Catálogo</div>
+    <div class="list" id="listaProdutos"></div>`;
+
+  document.getElementById("addProdutoBtn").onclick = async () => {
+    const nome = document.getElementById("novoNome").value.trim();
+    const preco = parseFloat(document.getElementById("novoPreco").value);
+    if(!nome || isNaN(preco)) return;
+    const { error } = await sb.from("bar_produtos").insert({ nome, preco, ativo:true });
+    if(!error) renderProdutos();
+  };
+
+  const el = document.getElementById("listaProdutos");
+  if(!state.produtos.length){ el.innerHTML = `<div class="empty">Ainda sem produtos no catálogo.</div>`; return; }
+  el.innerHTML = state.produtos.map(p => `
+    <div class="row">
+      <div class="meta"><span class="prodname">${p.nome}</span><span class="who">${eur(p.preco)}</span></div>
+      <button class="btn-ghost btn-sm" style="width:auto;" data-id="${p.id}">Remover</button>
+    </div>`).join("");
+  el.querySelectorAll("button[data-id]").forEach(b=>{
+    b.onclick = async () => { await sb.from("bar_produtos").update({ ativo:false }).eq("id", b.dataset.id); renderProdutos(); };
+  });
+}
+
+/* ============================ DEVEDORES ============================ */
+async function renderDevedores(){
+  const { data } = await sb.from("bar_devedores").select("*").order("nome");
+  state.devedores = data || [];
+  app.innerHTML = `
+    <div class="card">
+      <div class="label">Novo devedor</div>
+      <input type="text" id="novoDevNome" placeholder="Nome">
+      <button class="btn-primary" id="addDevedorBtn">Adicionar</button>
+    </div>
+    <div class="label">Em aberto</div>
+    <div id="listaDevedores"></div>`;
+
+  document.getElementById("addDevedorBtn").onclick = async () => {
+    const nome = document.getElementById("novoDevNome").value.trim();
+    if(!nome) return;
+    const { error } = await sb.from("bar_devedores").insert({ nome, saldo:0 });
+    if(!error) renderDevedores();
+  };
+
+  const el = document.getElementById("listaDevedores");
+  if(!state.devedores.length){ el.innerHTML = `<div class="empty">Ainda sem devedores registados.</div>`; return; }
+  el.innerHTML = state.devedores.map(d => `
+    <div class="devedor-item" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <span class="nome" data-ver="${d.id}" style="cursor:pointer; text-decoration:underline dotted;">${d.nome}</span>
+        <span class="saldo ${Number(d.saldo)===0?'zero':''}">${eur(d.saldo)}</span>
+      </div>
+      <div class="detalhe-devedor" id="detalhe-${d.id}" style="display:none; margin-top:10px;"></div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="btn-ghost btn-sm" style="width:auto; flex:1;" data-ver2="${d.id}">O que deve</button>
+        <button class="btn-ghost btn-sm" style="width:auto; flex:1;" data-id="${d.id}">Registar pagamento</button>
+      </div>
+    </div>`).join("");
+  el.querySelectorAll("button[data-id]").forEach(b=>{
+    b.onclick = () => renderPagamentoModal(b.dataset.id);
+  });
+  el.querySelectorAll("[data-ver], [data-ver2]").forEach(b=>{
+    b.onclick = () => toggleDetalheDevedor(b.dataset.ver || b.dataset.ver2);
+  });
+}
+
+async function toggleDetalheDevedor(devedorId){
+  const box = document.getElementById("detalhe-"+devedorId);
+  if(box.style.display === "block"){ box.style.display = "none"; return; }
+  const { data } = await sb.from("bar_devedor_movimentos").select("*").eq("devedor_id", devedorId).order("criado_em",{ascending:false});
+  const movs = data || [];
+  if(!movs.length){ box.innerHTML = `<div class="empty" style="padding:10px;">Sem movimentos registados.</div>`; }
+  else{
+    box.innerHTML = `<div class="list">` + movs.map(m => `
+      <div class="row">
+        <div class="meta">
+          <span class="prodname">${m.tipo === 'divida' ? (m.nota || 'Item') : 'Pagamento'}</span>
+          <span class="who">${new Date(m.criado_em).toLocaleDateString('pt-PT')}</span>
+        </div>
+        <div class="val" style="color:${m.tipo==='divida' ? 'var(--devedor)' : 'var(--lime)'}">
+          ${m.tipo==='divida' ? '+' : '−'} ${eur(m.valor)}
+        </div>
+      </div>`).join("") + `</div>`;
+  }
+  box.style.display = "block";
+}
+
+function renderPagamentoModal(devedorId){
+  const dev = state.devedores.find(d=>d.id===devedorId);
+  const bg = document.createElement("div");
+  bg.className = "modal-bg";
+  bg.innerHTML = `
+    <div class="modal">
+      <div class="label">Pagamento — ${dev.nome}</div>
+      <p class="hint">Saldo em dívida: <b>${eur(dev.saldo)}</b></p>
+      <input type="number" inputmode="decimal" id="valorPagamento" placeholder="Valor pago (€)">
+      <div class="method-toggle">
+        <button class="dinheiro active" data-m="dinheiro">Dinheiro</button>
+        <button class="tpa" data-m="tpa">TPA</button>
+      </div>
+      <button class="btn-primary" id="confirmarPagamento">Confirmar pagamento</button>
+      <button class="btn-ghost" id="cancelarPagamento">Cancelar</button>
+    </div>`;
+  document.body.appendChild(bg);
+  let metodoPag = "dinheiro";
+  bg.querySelectorAll(".method-toggle button").forEach(b=>{
+    b.onclick = () => { bg.querySelectorAll(".method-toggle button").forEach(x=>x.classList.remove("active")); b.classList.add("active"); metodoPag = b.dataset.m; };
+  });
+  document.getElementById("cancelarPagamento").onclick = () => bg.remove();
+  document.getElementById("confirmarPagamento").onclick = async () => {
+    const valor = parseFloat(document.getElementById("valorPagamento").value);
+    if(isNaN(valor) || valor<=0) return;
+    await sb.from("bar_devedor_movimentos").insert({ devedor_id: devedorId, tipo:"pagamento", valor, nota:null });
+    await sb.from("bar_devedores").update({ saldo: Number(dev.saldo) - valor }).eq("id", devedorId);
+
+    // entra também no caixa de hoje, como recebimento (não é venda de produto)
+    if(state.session){
+      await sb.from("bar_vendas").insert({
+        session_id: state.session.id, data: today, produto_id:null,
+        produto_nome:"Pagamento de dívida — "+dev.nome, quantidade:null,
+        valor_unitario:null, valor_total: valor, metodo: metodoPag, devedor_id: devedorId
+      });
+    }
+    bg.remove();
+    await renderDevedores();
+  };
+}
+
+/* ============================ RELATÓRIOS ============================ */
+async function renderRelatorios(){
+  const mesAtual = today.slice(0,7);
+  app.innerHTML = `
+    <div class="card">
+      <div class="label">Mês</div>
+      <input type="month" id="mesInput" value="${mesAtual}">
+      <button class="btn-primary" id="gerarBtn">Gerar relatório</button>
+    </div>
+    <div id="relatorioArea"></div>`;
+  document.getElementById("gerarBtn").onclick = () => gerarRelatorio(document.getElementById("mesInput").value);
+  gerarRelatorio(mesAtual);
+}
+
+async function gerarRelatorio(mes){
+  const inicio = mes + "-01";
+  const [y,m] = mes.split("-").map(Number);
+  const fimDate = new Date(y, m, 0);
+  const fim = fimDate.toISOString().slice(0,10);
+
+  const { data: vendas } = await sb.from("bar_vendas").select("*").gte("data", inicio).lte("data", fim);
+  const { data: sessions } = await sb.from("bar_sessions").select("*").gte("data", inicio).lte("data", fim).order("data");
+  const { data: devedoresAbertos } = await sb.from("bar_devedores").select("*").gt("saldo", 0).order("saldo", { ascending:false });
+
+  const el = document.getElementById("relatorioArea");
+  if(!vendas || !vendas.length){ el.innerHTML = `<div class="empty">Sem registos neste mês.</div>`; return; }
+
+  let dinheiro=0, tpa=0, fiado=0;
+  vendas.forEach(v=>{
+    if(v.metodo==="dinheiro") dinheiro+=Number(v.valor_total);
+    else if(v.metodo==="tpa") tpa+=Number(v.valor_total);
+    else if(v.metodo==="devedor") fiado+=Number(v.valor_total);
+  });
+
+  const porDia = {};
+  vendas.forEach(v=>{
+    porDia[v.data] = porDia[v.data] || {dinheiro:0,tpa:0,fiado:0};
+    porDia[v.data][v.metodo] += Number(v.valor_total);
+  });
+  const dias = Object.keys(porDia).sort();
+
+  const porProduto = {};
+  vendas.filter(v=>v.produto_id).forEach(v=>{
+    porProduto[v.produto_nome] = porProduto[v.produto_nome] || {qtd:0, valor:0};
+    porProduto[v.produto_nome].qtd += Number(v.quantidade)||0;
+    porProduto[v.produto_nome].valor += Number(v.valor_total);
+  });
+  const produtosOrdenados = Object.entries(porProduto).sort((a,b)=>b[1].valor-a[1].valor);
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="hero-total">
+        <div class="n">${eur(dinheiro+tpa+fiado)}</div><div class="l">Total do mês</div>
+        <div class="split">
+          <div class="box cash"><div class="n">${eur(dinheiro)}</div><div class="l">Dinheiro</div></div>
+          <div class="box tpa"><div class="n">${eur(tpa)}</div><div class="l">TPA</div></div>
+          <div class="box devedor"><div class="n">${eur(fiado)}</div><div class="l">Devedores</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="label">Somas diárias</div>
+      <table class="report"><tr><th>Dia</th><th>Dinheiro</th><th>TPA</th><th>Devedores</th><th>Total</th></tr>
+      ${dias.map(d=>{
+        const x = porDia[d]; const tot = x.dinheiro+x.tpa+x.fiado;
+        return `<tr><td>${d.slice(8,10)}</td><td>${eur(x.dinheiro)}</td><td>${eur(x.tpa)}</td><td>${eur(x.fiado)}</td><td><b>${eur(tot)}</b></td></tr>`;
+      }).join("")}
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="label">Produtos vendidos</div>
+      <table class="report"><tr><th>Produto</th><th>Qtd</th><th>Receita</th></tr>
+      ${produtosOrdenados.map(([nome,x])=>`<tr><td>${nome}</td><td>${x.qtd}</td><td>${eur(x.valor)}</td></tr>`).join("")}
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="label">Devedores em aberto — para cobrar</div>
+      ${(devedoresAbertos||[]).length ? `
+      <table class="report"><tr><th>Nome</th><th>Deve</th></tr>
+      ${devedoresAbertos.map(d=>`<tr><td>${d.nome}</td><td><b>${eur(d.saldo)}</b></td></tr>`).join("")}
+      </table>` : `<div class="empty">Ninguém com saldo em aberto neste momento.</div>`}
+    </div>
+
+    <div class="card">
+      <div class="label">Fechos de caixa do mês</div>
+      <table class="report"><tr><th>Dia</th><th>Abertura</th><th>Contado</th><th>Diferença</th></tr>
+      ${(sessions||[]).filter(s=>s.status==='fechada').map(s=>{
+        const diffClass = Math.abs(Number(s.diferenca))<0.01 ? "zero":"off";
+        return `<tr><td>${s.data.slice(8,10)}</td><td>${eur(s.valor_abertura)}</td><td>${eur(s.valor_contado)}</td><td class="diff ${diffClass}">${eur(s.diferenca)}</td></tr>`;
+      }).join("")}
+      </table>
+    </div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
