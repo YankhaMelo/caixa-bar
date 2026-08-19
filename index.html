@@ -94,6 +94,22 @@
   .devedor-item .nome{font-weight:600; font-size:14px;}
   .devedor-item .saldo{font-family:var(--mono); font-weight:700; color:var(--devedor);}
   .devedor-item .saldo.zero{color:var(--ink-dim);}
+
+  @media print{
+    .tabs, #gerarBtn, #mesInput, .card:first-child, .devedor-item button, #pdfBtn { display:none !important; }
+    body{background:#fff; color:#111;}
+    .app{max-width:100%; padding:0 8px;}
+    .card{background:#fff; border:1px solid #ccc; break-inside:avoid;}
+    .label{color:#555;}
+    .hero-total .n{color:#111;}
+    .split .box{background:#f2f2f2;}
+    .split .box.cash .n{color:#8a6d1a;} .split .box.tpa .n{color:#1a5aa8;} .split .box.devedor .n{color:#b3491f;}
+    table.report th{color:#555; border-bottom-color:#ccc;}
+    table.report td{border-bottom-color:#eee; color:#111;}
+    .diff.zero{color:#4a7a1e;} .diff.off{color:#b3241f;}
+    #printHeader{display:block !important; margin-bottom:16px;}
+  }
+  #printHeader{display:none;}
 </style>
 </head>
 <body>
@@ -526,10 +542,19 @@ async function renderRelatorios(){
     <div class="card">
       <div class="label">Mês</div>
       <input type="month" id="mesInput" value="${mesAtual}">
-      <button class="btn-primary" id="gerarBtn">Gerar relatório</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-primary" id="gerarBtn" style="flex:1;">Gerar relatório</button>
+        <button class="btn-ghost" id="pdfBtn" style="flex:1; margin-top:0;">Exportar PDF</button>
+      </div>
     </div>
+    <div id="printHeader"></div>
     <div id="relatorioArea"></div>`;
   document.getElementById("gerarBtn").onclick = () => gerarRelatorio(document.getElementById("mesInput").value);
+  document.getElementById("pdfBtn").onclick = () => {
+    const mesLabel = new Date(document.getElementById("mesInput").value + "-01").toLocaleDateString("pt-PT",{month:"long",year:"numeric"});
+    document.getElementById("printHeader").innerHTML = `<h2 style="margin:0 0 4px;">5.7 Bar — Relatório mensal</h2><p style="margin:0; color:#555;">${mesLabel}</p>`;
+    window.print();
+  };
   gerarRelatorio(mesAtual);
 }
 
