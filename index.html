@@ -534,16 +534,23 @@ async function renderRelatorios(){
 }
 
 async function gerarRelatorio(mes){
+  if(!mes || !/^\d{4}-\d{2}$/.test(mes)) mes = today.slice(0,7);
   const inicio = mes + "-01";
   const [y,m] = mes.split("-").map(Number);
   const fimDate = new Date(y, m, 0);
   const fim = fimDate.toISOString().slice(0,10);
 
-  const { data: vendas } = await sb.from("bar_vendas").select("*").gte("data", inicio).lte("data", fim);
-  const { data: sessions } = await sb.from("bar_sessions").select("*").gte("data", inicio).lte("data", fim).order("data");
-  const { data: devedoresAbertos } = await sb.from("bar_devedores").select("*").gt("saldo", 0).order("saldo", { ascending:false });
-
   const el = document.getElementById("relatorioArea");
+  let vendas, sessions, devedoresAbertos;
+  try{
+    ({ data: vendas } = await sb.from("bar_vendas").select("*").gte("data", inicio).lte("data", fim));
+    ({ data: sessions } = await sb.from("bar_sessions").select("*").gte("data", inicio).lte("data", fim).order("data"));
+    ({ data: devedoresAbertos } = await sb.from("bar_devedores").select("*").gt("saldo", 0).order("saldo", { ascending:false }));
+  } catch(e){
+    el.innerHTML = `<div class="empty">Erro a carregar o relatório: ${e.message||e}</div>`;
+    return;
+  }
+
   if(!vendas || !vendas.length){ el.innerHTML = `<div class="empty">Sem registos neste mês.</div>`; return; }
 
   let dinheiro=0, tpa=0, fiado=0;
@@ -555,8 +562,8 @@ async function gerarRelatorio(mes){
 
   const porDia = {};
   vendas.forEach(v=>{
-    porDia[v.data] = porDia[v.data] || {dinheiro:0,tpa:0,fiado:0};
-    porDia[v.data][v.metodo] += Number(v.valor_total);
+    porDia[v.data] = porDia[v.data] || {dinheiro:0,tpa:0,devedor:0};
+    porDia[v.data][v.metodo] = (porDia[v.data][v.metodo]||0) + Number(v.valor_total);
   });
   const dias = Object.keys(porDia).sort();
 
@@ -584,8 +591,8 @@ async function gerarRelatorio(mes){
       <div class="label">Somas diárias</div>
       <table class="report"><tr><th>Dia</th><th>Dinheiro</th><th>TPA</th><th>Devedores</th><th>Total</th></tr>
       ${dias.map(d=>{
-        const x = porDia[d]; const tot = x.dinheiro+x.tpa+x.fiado;
-        return `<tr><td>${d.slice(8,10)}</td><td>${eur(x.dinheiro)}</td><td>${eur(x.tpa)}</td><td>${eur(x.fiado)}</td><td><b>${eur(tot)}</b></td></tr>`;
+        const x = porDia[d]; const tot = x.dinheiro+x.tpa+x.devedor;
+        return `<tr><td>${d.slice(8,10)}</td><td>${eur(x.dinheiro)}</td><td>${eur(x.tpa)}</td><td>${eur(x.devedor)}</td><td><b>${eur(tot)}</b></td></tr>`;
       }).join("")}
       </table>
     </div>
